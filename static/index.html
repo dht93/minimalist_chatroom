@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html ng-app="myapp">
+<head>
+  <meta charset="utf-8">
+  <title>Chat-Box</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.4/socket.io.js"></script>
+
+</head>
+<body>
+  <script>
+  var chat_beta = angular.module('myapp', []);
+
+  chat_beta.controller('my_controller', function($scope){
+    var socket = io.connect('http://'+document.domain+':'+location.port + '/chat');
+
+    $scope.messages=[];
+    $scope.name='';
+    $scope.text='';
+
+    socket.on('connect', function(){
+      console.log('Connected!');
+    });
+    socket.on('message',function(msg){
+      console.log(msg);
+      $scope.messages.push(msg);
+      $scope.$apply();
+    });
+    $scope.send = function send(){
+      console.log($scope.text);
+      socket.emit('message',$scope.text,$scope.name);
+      $scope.text='';
+    };
+
+    });
+</script>
+  <style>
+  #msgpane{
+    background-color:#d8d6d6;
+  }
+  </style>
+  <div class="col-md-12 col-xs-12" align="center">
+    <h1>dht93's chatbox</h1>
+  </div>
+  <div class="col-md-12 col-xs-12" ng-controller="my_controller" style="padding-top:20px;">
+    <div class="row">
+    <div class="col-md-5 col-xs-12">
+      <form ng-submit="send()">
+        <div class="col-md-6 col-xs-8 col-md-offset-3 col-xs-offset-2" style="padding-top:10px;">
+      <input type="text" class="form-control" ng-model='name' placeholder="Name">
+      </div>
+      <div class="col-md-10 col-xs-10 col-md-offset-1 col-xs-offset-1" style="padding-top:10px;">
+        <input type="text" class="form-control" ng-model="text" placeholder="Say some shit" >
+        </div>
+        <div class="col-md-2 col-xs-4 col-md-offset-5 col-xs-offset-4" style="padding-top:10px;">
+        <input type="submit" value="Send" ng-disabled="!name">
+      </div>
+      </form>
+    </div>
+    <div id="msgpane" class="col-md-7 col-xs-12" style="overflow-y: scroll;">
+    <p ng-repeat="msg in messages"><b ng-bind="msg.name+':'"></b>&nbsp;
+      <span ng-bind="msg.text"></span>
+    </p>
+</div>
+</div>
+</div>
+
+
+</body>
+
+
+</html>
